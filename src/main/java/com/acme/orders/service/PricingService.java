@@ -41,7 +41,7 @@ public class PricingService {
         if (subtotal.compareTo(BULK_THRESHOLD) >= 0) {
             rate = rate + 0.01;
         }
-        return BigDecimal.valueOf(new Double(rate));
+        return BigDecimal.valueOf(rate);
     }
 
     public BigDecimal discount(CustomerTier tier, BigDecimal subtotal) {

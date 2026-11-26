@@ -26,7 +26,7 @@ public class ReportService {
         int open = 0;
         Map<String, Integer> byStatus = new LinkedHashMap<String, Integer>();
         for (OrderStatus status : OrderStatus.values()) {
-            byStatus.put(status.name(), new Integer(0));
+            byStatus.put(status.name(), Integer.valueOf(0));
         }
         Map<String, Integer> units = new HashMap<String, Integer>();
         for (Order order : orders) {

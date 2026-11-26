@@ -120,7 +120,7 @@ public class OrderService {
     }
 
     private boolean isLargeOrder(Order order) {
-        Integer limit = new Integer(1000);
+        Integer limit = Integer.valueOf(1000);
         return order.getTotal().intValue() > limit.intValue();
     }
 

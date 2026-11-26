@@ -36,11 +36,22 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiError> invalid(MethodArgumentNotValidException e) {
         Map<String, String> fields = new LinkedHashMap<String, String>();
         for (FieldError error : e.getBindingResult().getFieldErrors()) {
-            if (!fields.containsKey(error.getField())) {
-                fields.put(error.getField(), error.getDefaultMessage());
+            String key = fieldPath(error.getField());
+            if (!fields.containsKey(key)) {
+                fields.put(key, error.getDefaultMessage());
             }
         }
         return error(HttpStatus.BAD_REQUEST, "Please fix the highlighted fields", fields);
+    }
+
+    private static String fieldPath(String field) {
+        String key = field.replaceAll("\\.(\\d+)\\.", "[$1].");
+        java.util.regex.Matcher moved = java.util.regex.Pattern.compile("^([A-Za-z]+)\\.([A-Za-z]+)\\[(\\d+)]$")
+            .matcher(key);
+        if (moved.matches()) {
+            return moved.group(1) + "[" + moved.group(3) + "]." + moved.group(2);
+        }
+        return key;
     }
 
     private ResponseEntity<ApiError> error(HttpStatus status, String message, Map<String, String> fields) {

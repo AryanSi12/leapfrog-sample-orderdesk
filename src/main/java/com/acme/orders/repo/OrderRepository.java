@@ -44,7 +44,7 @@ public class OrderRepository {
 
     public Order save(Order order) {
         if (order.getId() == null) {
-            order.setId(new Long(sequence.incrementAndGet()));
+            order.setId(Long.valueOf(sequence.incrementAndGet()));
         }
         orders.put(order.getId(), order);
         return order;
