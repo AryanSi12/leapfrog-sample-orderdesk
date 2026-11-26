@@ -8,8 +8,8 @@ import com.acme.orders.model.OrderStatus;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,8 +17,11 @@ public class OrderMapper {
 
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
-    @Autowired
-    private OrderService orders;
+    private final OrderService orders;
+
+    public OrderMapper(OrderService orders) {
+        this.orders = Objects.requireNonNull(orders, "orders");
+    }
 
     public OrderResponse toResponse(Order order) {
         if (order == null) {
@@ -37,11 +40,13 @@ public class OrderMapper {
     }
 
     public List<OrderResponse> toResponses(List<Order> list) {
+        Objects.requireNonNull(list, "list");
         return list.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /** Label shown in the status pill. */
     public String statusLabel(OrderStatus status) {
+        Objects.requireNonNull(status, "status");
         String label;
         switch (status) {
             case NEW:

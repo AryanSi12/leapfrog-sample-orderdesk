@@ -8,18 +8,24 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OrderService {
 
-    @Autowired
-    private OrderRepository repository;
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
-    @Autowired
-    private PricingService pricing;
+    private final OrderRepository repository;
+    private final PricingService pricing;
+
+    public OrderService(OrderRepository repository, PricingService pricing) {
+        this.repository = Objects.requireNonNull(repository, "repository");
+        this.pricing = Objects.requireNonNull(pricing, "pricing");
+    }
 
     public List<Order> list(String status) {
         List<Order> all = repository.findAll();
@@ -39,6 +45,7 @@ public class OrderService {
     }
 
     public Order create(OrderRequest request) {
+        Objects.requireNonNull(request, "request");
         Order order = new Order();
         order.setCustomer(request.getCustomer().trim());
         order.setEmail(request.getEmail().trim().toLowerCase());
@@ -55,7 +62,7 @@ public class OrderService {
         order.setUpdatedAt(now);
         repository.save(order);
         order.setNumber(orderNumber(order.getId(), now));
-        System.out.println("Created order " + order.getNumber() + " for " + order.getCustomer() + " total " + order.getTotal());
+        log.info("Created order {} for {} total {}", order.getNumber(), order.getCustomer(), order.getTotal());
         return order;
     }
 
@@ -66,7 +73,7 @@ public class OrderService {
         }
         order.setStatus(next);
         order.setUpdatedAt(LocalDateTime.now());
-        System.out.println("Order " + order.getNumber() + " is now " + next);
+        log.info("Order {} is now {}", order.getNumber(), next);
         return order;
     }
 
@@ -80,6 +87,7 @@ public class OrderService {
 
     /** Where an order may go next. */
     public List<OrderStatus> allowedNext(OrderStatus status) {
+        Objects.requireNonNull(status, "status");
         List<OrderStatus> next = new ArrayList<OrderStatus>();
         switch (status) {
             case NEW:
@@ -117,15 +125,5 @@ public class OrderService {
         number.append("-");
         number.append(id);
         return number.toString();
-    }
-
-    private boolean isLargeOrder(Order order) {
-        Integer limit = new Integer(1000);
-        return order.getTotal().intValue() > limit.intValue();
-    }
-
-    private String describe(Order order) {
-        String text = order.getNumber() + " (" + order.getCustomer() + ")";
-        return text;
     }
 }

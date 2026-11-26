@@ -22,7 +22,7 @@ var api = (function () {
         if (response.ok) {
           done(null, data);
         } else {
-          var err = new Error((data && data.message) || ('HTTP ' + response.status));
+          var err = new Error((data && (data.message || data.detail)) || ('HTTP ' + response.status));
           err.status = response.status;
           err.fields = (data && data.fields) || {};
           done(err);

@@ -43,14 +43,16 @@ public class OrderRepository {
     }
 
     public Order save(Order order) {
+        Objects.requireNonNull(order, "order");
         if (order.getId() == null) {
-            order.setId(new Long(sequence.incrementAndGet()));
+            order.setId(Long.valueOf(sequence.incrementAndGet()));
         }
         orders.put(order.getId(), order);
         return order;
     }
 
     public boolean delete(Long id) {
+        Objects.requireNonNull(id, "id");
         return orders.remove(id) != null;
     }
 

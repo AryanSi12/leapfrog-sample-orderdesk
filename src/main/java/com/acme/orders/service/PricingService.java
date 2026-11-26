@@ -5,15 +5,21 @@ import com.acme.orders.model.LineItem;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /** Subtotal, tier discount and free-shipping rules. */
 @Service
 public class PricingService {
 
+    private static final Logger log = LoggerFactory.getLogger(PricingService.class);
+
     private static final BigDecimal BULK_THRESHOLD = new BigDecimal("500.00");
 
     public BigDecimal subtotal(List<LineItem> items) {
+        Objects.requireNonNull(items, "items");
         BigDecimal subtotal = BigDecimal.ZERO;
         for (LineItem item : items) {
             subtotal = subtotal.add(item.lineTotal());
@@ -23,6 +29,8 @@ public class PricingService {
 
     /** Discount rate for a tier, as a fraction (0.05 = 5%). Bulk orders get one extra point. */
     public BigDecimal discountRate(CustomerTier tier, BigDecimal subtotal) {
+        Objects.requireNonNull(tier, "tier");
+        Objects.requireNonNull(subtotal, "subtotal");
         double rate;
         switch (tier) {
             case GOLD:
@@ -41,10 +49,12 @@ public class PricingService {
         if (subtotal.compareTo(BULK_THRESHOLD) >= 0) {
             rate = rate + 0.01;
         }
-        return BigDecimal.valueOf(new Double(rate));
+        return BigDecimal.valueOf(rate);
     }
 
     public BigDecimal discount(CustomerTier tier, BigDecimal subtotal) {
+        Objects.requireNonNull(tier, "tier");
+        Objects.requireNonNull(subtotal, "subtotal");
         return subtotal.multiply(discountRate(tier, subtotal)).setScale(2, RoundingMode.HALF_UP);
     }
 
@@ -55,12 +65,8 @@ public class PricingService {
         try {
             return CustomerTier.valueOf(tier.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
-            System.out.println("Unknown tier '" + tier + "', using STANDARD");
+            log.info("Unknown tier '{}', using STANDARD", tier, e);
             return CustomerTier.STANDARD;
         }
-    }
-
-    private BigDecimal shippingFor(BigDecimal subtotal) {
-        return subtotal.compareTo(new BigDecimal("50")) >= 0 ? BigDecimal.ZERO : new BigDecimal("4.99");
     }
 }

@@ -9,8 +9,7 @@ import com.acme.orders.service.OrderMapper;
 import com.acme.orders.service.OrderService;
 import java.net.URI;
 import java.util.List;
-import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,11 +17,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/orders")
 public class OrderController {
 
-    @Autowired
-    private OrderService orders;
+    private final OrderService orders;
+    private final OrderMapper mapper;
 
-    @Autowired
-    private OrderMapper mapper;
+    public OrderController(OrderService orders, OrderMapper mapper) {
+        this.orders = orders;
+        this.mapper = mapper;
+    }
 
     @GetMapping
     public List<OrderResponse> list(@RequestParam(value = "status", required = false) String status) {

@@ -3,7 +3,6 @@ package com.acme.orders.web;
 import com.acme.orders.dto.DashboardStats;
 import com.acme.orders.runtime.RuntimeInfo;
 import com.acme.orders.service.ReportService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class DashboardController {
 
-    @Autowired
-    private ReportService reports;
+    private final ReportService reports;
+
+    public DashboardController(ReportService reports) {
+        this.reports = reports;
+    }
 
     @GetMapping("/dashboard")
     public DashboardStats dashboard() {
