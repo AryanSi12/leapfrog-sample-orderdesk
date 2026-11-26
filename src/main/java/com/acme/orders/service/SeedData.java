@@ -7,7 +7,8 @@ import com.acme.orders.model.OrderStatus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +16,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class SeedData implements CommandLineRunner {
 
-    @Autowired
-    private OrderService orders;
+    private static final Logger log = LoggerFactory.getLogger(SeedData.class);
+
+    private final OrderService orders;
+
+    public SeedData(OrderService orders) {
+        this.orders = orders;
+    }
 
     @Override
     public void run(String... args) {
@@ -32,7 +38,7 @@ public class SeedData implements CommandLineRunner {
             line("LT-900", "Bike light set", 2, "32.00"));
         seed("Studio Nine", "admin@studionine.example", "SILVER", OrderStatus.NEW,
             line("DL-14", "Desk lamp", 2, "54.00"), line("CB-3", "Cable organiser", 5, "8.40"));
-        System.out.println("Seeded demo orders");
+        log.info("Seeded demo orders");
     }
 
     private void seed(String customer, String email, String tier, OrderStatus target, LineItemRequest... lines) {

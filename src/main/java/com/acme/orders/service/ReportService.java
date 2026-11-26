@@ -9,15 +9,21 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /** Dashboard numbers and the CSV export. */
 @Service
 public class ReportService {
 
-    @Autowired
-    private OrderRepository repository;
+    private static final Logger log = LoggerFactory.getLogger(ReportService.class);
+
+    private final OrderRepository repository;
+
+    public ReportService(OrderRepository repository) {
+        this.repository = Objects.requireNonNull(repository, "repository");
+    }
 
     public DashboardStats dashboard() {
         List<Order> orders = repository.findAll();
@@ -67,7 +73,7 @@ public class ReportService {
                     .append(order.getCreatedAt().toLocalDate())
                     .append('\n');
             } catch (RuntimeException e) {
-                e.printStackTrace();
+                log.error("Could not write an order to the CSV", e);
             }
         }
         return out.toString();
@@ -81,10 +87,5 @@ public class ReportService {
             return "\"" + value.replace("\"", "\"\"") + "\"";
         }
         return value;
-    }
-
-    private List<Order> recent(int days) {
-        List<Order> list = repository.findAll();
-        return list.subList(0, Math.min(days, list.size()));
     }
 }
